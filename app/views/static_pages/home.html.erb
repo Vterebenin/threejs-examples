@@ -1,0 +1,83 @@
+<script>
+	// global variables
+var renderer;
+var scene;
+var camera;
+/**
+ * Initializes the scene, camera and objects. Called when the window is
+ * loaded by using window.onload (see below)
+ */
+function init() {
+    // создаю сцену, которая будет размещать все наши элементы: объекты, камеры и свет.
+    scene = new THREE.Scene();
+    // создаю камеру, которая определяет куда мы смотрим.
+    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    // создаю рендерер, который определяет цвет бэкграунда и размер канвы
+    renderer = new THREE.WebGLRenderer();
+    renderer.setClearColor(0x000000, 1.0);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMapEnabled = true;
+    // position and point the camera to the center of the scene
+    camera.position.x = 15;
+    camera.position.y = 16;
+    camera.position.z = 13;
+    camera.lookAt(scene.position);
+
+    // создаю геометрию куба
+    var cubeGeometry = new THREE.CubeGeometry(6, 4, 6);
+    // материал куба
+		var cubeMaterial = new THREE.MeshLambertMaterial({color: "blue"});
+		// собственно сам куб. то есть меш это геометрия + материал
+		var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+		// даем нашему братку тень
+		cube.castShadow = true;
+		scene.add(cube);
+
+		// создаю плоскость
+		var planeGeometry = new THREE.PlaneGeometry(20, 20);
+		var planeMaterial = new THREE.MeshLambertMaterial({color: 0xcccccc});
+
+		var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+		// задаю возможность получения тени
+		plane.receiveShadow = true;
+		plane.rotation.x = -0.5 * Math.PI;
+		plane.position.y = -2;
+		scene.add(plane);
+
+		// и задаю сам свет, чтобы это все отображалось
+		var spotLight = new THREE.SpotLight(0xffffff);
+		// позиция отбрасывания света
+		spotLight.position.set(10, 20, 20);
+		spotLight.castShadow = true;
+		scene.add(spotLight);
+    // add the output of the renderer to the html element
+    document.body.appendChild(renderer.domElement);
+    // call the render function, after the first render, interval is determined
+    // by requestAnimationFrame
+    render();
+}
+/**
+ * Called when the scene needs to be rendered. Delegates to requestAnimationFrame
+ * for future renders
+ */
+function render() {
+    // render using requestAnimationFrame
+    requestAnimationFrame(render);
+    renderer.render(scene, camera);
+}
+/**
+ * Function handles the resize event. This make sure the camera and the renderer
+ * are updated at the correct moment.
+ */
+function handleResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+
+// calls the init function when the window is done loading.
+window.onload = init;
+// calls the handleResize function when the window is resized
+window.addEventListener('resize', handleResize, false);
+</script>
